@@ -3,6 +3,9 @@ import axios from 'axios';
 
 import { Searchbar } from './components/Searchbar/Searchbar';
 import { ImageGallery } from './components/ImageGallery/ImageGallery';
+import { Button } from './components/Button/Button';
+import { Loader } from 'components/Loader/Loader';
+import { Modal } from 'components/Modal/Modal';
 
 import css from 'App.module.css';
 
@@ -12,11 +15,14 @@ export function App() {
   const [images, setImages] = useState([]);
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
+  const [showModal, setShowModal] = useState(false);
+  const [modalImage, setModalImage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSearch = newQuery => {
     setQuery(newQuery);
-    setImages([]);
     setPage(1);
+    setImages([]);
   };
 
   useEffect(() => {
@@ -25,6 +31,7 @@ export function App() {
 
   const fetchImages = () => {
     const API_KEY = '39269342-bb9295fafabc2f42da640db69';
+    setLoading(true);
 
     axios
       .get(
@@ -32,22 +39,45 @@ export function App() {
       )
       .then(response => {
         setImages(prevImages => [...prevImages, ...response.data.hits]);
+        setLoading(false);
       })
       .catch(err => {
         console.error(err);
+        setLoading(false);
       });
   };
 
+  const handleLoadMore = () => {
+    setPage(page + 1);
+  };
+
   const handleImageClick = largeImageURL => {
-return largeImageURL
+    setShowModal(true);
+    setModalImage(largeImageURL);
+    document.body.classList.add('modal-open');
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setModalImage('');
+    document.body.classList.remove('modal-open');
   };
 
   return (
-    <PixabayContext.Provider value={{ images }}>
+    <PixabayContext.Provider value={{ images, loading }}>
       <Searchbar onSubmit={handleSearch} />
+      {loading && <Loader />}
       <div className={css.container}>
-        <ImageGallery onImageClick={handleImageClick}/>
+        <ImageGallery onImageClick={handleImageClick} />
+        {images.length >= 12 && !loading && (
+          <Button onLoadMore={handleLoadMore} />
+        )}
       </div>
+      {showModal && (
+        <Modal onClose={closeModal}>
+          <img src={modalImage} alt="Large" />
+        </Modal>
+      )}
     </PixabayContext.Provider>
   );
 }
