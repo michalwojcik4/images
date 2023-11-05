@@ -26,26 +26,25 @@ export function App() {
   };
 
   useEffect(() => {
+    const fetchImages = async () => {
+      const API_KEY = '39269342-bb9295fafabc2f42da640db69';
+      setLoading(true);
+
+      await axios
+        .get(
+          `https://pixabay.com/api/?q=${query}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
+        )
+        .then(response => {
+          setImages(prevImages => [...prevImages, ...response.data.hits]);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error(err);
+          setLoading(false);
+        });
+    };
     fetchImages();
   }, [query, page]);
-
-  const fetchImages = () => {
-    const API_KEY = '39269342-bb9295fafabc2f42da640db69';
-    setLoading(true);
-
-    axios
-      .get(
-        `https://pixabay.com/api/?q=${query}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
-      )
-      .then(response => {
-        setImages(prevImages => [...prevImages, ...response.data.hits]);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
-  };
 
   const handleLoadMore = () => {
     setPage(page + 1);
