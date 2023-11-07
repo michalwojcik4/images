@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 import { Searchbar } from './components/Searchbar/Searchbar';
@@ -25,26 +25,33 @@ export function App() {
     setImages([]);
   };
 
-  useEffect(() => {
-    const fetchImages = async () => {
-      const API_KEY = '39269342-bb9295fafabc2f42da640db69';
-      setLoading(true);
+  const removeDuplicatesById = (data, key) => {
+    return [...new Map(data.map(x => [key(x), x])).values()];
+  };
 
-      await axios
-        .get(
-          `https://pixabay.com/api/?q=${query}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
-        )
-        .then(response => {
-          setImages(prevImages => [...prevImages, ...response.data.hits]);
-          setLoading(false);
-        })
-        .catch(err => {
-          console.error(err);
-          setLoading(false);
-        });
-    };
-    fetchImages();
+  const fetchImages = useCallback(async () => {
+    const API_KEY = process.env.REACT_APP_API_KEY;
+    setLoading(true);
+
+    try {
+      const response = await axios.get(
+        `https://pixabay.com/api/?q=${query}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
+      );
+
+      const newImages = response.data.hits;
+      setImages(prevImages =>
+        removeDuplicatesById([...prevImages, ...newImages], item => item.id)
+      );
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
   }, [query, page]);
+
+  useEffect(() => {
+    fetchImages();
+  }, [fetchImages]);
 
   const handleLoadMore = () => {
     setPage(page + 1);

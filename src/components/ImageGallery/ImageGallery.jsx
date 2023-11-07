@@ -11,9 +11,9 @@ export function ImageGallery({ onImageClick }) {
 
   return (
     <ul className={css.gallery}>
-      {images.map((image, index) => (
+      {images.map((image) => (
         <ImageGalleryItem
-          key={index}
+          key={image.id}
           image={image}
           onImageClick={onImageClick}
         />
