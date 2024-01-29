@@ -2,7 +2,7 @@
 
 A simple application for searching and browsing images using the Pixabay API. This project utilizes React technology.
 
-/https://michalwojcik4.github.io/goit-react-hw-04-images/
+/https://michalwojcik4.github.io/images/
 
 ## Introduction
 
@@ -31,7 +31,7 @@ This application allows users to search for images based on a keyword and browse
 ## Configuration
 
 1. Clone the repository:
-git clone git@github.com:michalwojcik4/goit-react-hw-04-images.git
+git clone git@github.com:michalwojcik4/images.git
 
 Navigate to the project directory:
 cd repository
